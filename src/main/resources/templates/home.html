@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home - OAuth2 Demo</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        margin: 0;
+        padding: 20px;
+        min-height: 100vh;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: white;
+        padding: 2rem;
+        border-radius: 10px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        color: #333;
+        text-align: center;
+        margin-bottom: 2rem;
+      }
+      .user-info {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+      }
+      .user-info h2 {
+        margin-top: 0;
+        color: #2c3e50;
+      }
+      .info-item {
+        margin: 0.5rem 0;
+        padding: 0.5rem;
+        background: white;
+        border-radius: 4px;
+        border-left: 4px solid #3498db;
+      }
+      .info-label {
+        font-weight: bold;
+        color: #7f8c8d;
+      }
+      .logout-btn {
+        display: inline-block;
+        padding: 12px 24px;
+        background: #e74c3c;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+        transition: background 0.3s ease;
+      }
+      .logout-btn:hover {
+        background: #c0392b;
+      }
+      .attributes {
+        margin-top: 2rem;
+      }
+      .attributes h3 {
+        color: #34495e;
+        border-bottom: 2px solid #3498db;
+        padding-bottom: 0.5rem;
+      }
+      .attribute-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.5rem;
+        border-bottom: 1px solid #ecf0f1;
+      }
+      .attribute-key {
+        font-weight: bold;
+        color: #2c3e50;
+      }
+      .attribute-value {
+        color: #7f8c8d;
+        font-family: monospace;
+        word-break: break-all;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🎉 Welcome to Your Dashboard!</h1>
+
+      <div class="user-info">
+        <h2>User Information</h2>
+
+        <div th:if="${name}" class="info-item">
+          <span class="info-label">Name:</span> <span th:text="${name}"></span>
+        </div>
+
+        <div
+          th:if="${given_name != null and family_name != null}"
+          class="info-item"
+        >
+          <span class="info-label">Full Name:</span>
+          <span th:text="${given_name + ' ' + family_name}"></span>
+        </div>
+
+        <div th:if="${email}" class="info-item">
+          <span class="info-label">Email:</span>
+          <span th:text="${email}"></span>
+        </div>
+
+        <div th:if="${login}" class="info-item">
+          <span class="info-label">Username:</span>
+          <span th:text="${login}"></span>
+        </div>
+
+        <!-- Show login method -->
+        <div class="info-item">
+          <span class="info-label">Login Method:</span>
+          <span
+            th:if="${attributes != null and !attributes.isEmpty()}"
+            th:text="'OAuth2 Provider'"
+          ></span>
+          <span
+            th:if="${attributes == null or attributes.isEmpty()}"
+            th:text="'Form Login'"
+          ></span>
+        </div>
+      </div>
+
+      <div
+        class="attributes"
+        th:if="${attributes != null and !attributes.isEmpty()}"
+      >
+        <h3>OAuth2 Attributes</h3>
+        <div th:each="entry : ${attributes}" class="attribute-item">
+          <span class="attribute-key" th:text="${entry.key}"></span>
+          <span class="attribute-value" th:text="${entry.value}"></span>
+        </div>
+      </div>
+
+      <div
+        class="attributes"
+        th:if="${attributes == null or attributes.isEmpty()}"
+      >
+        <h3>User Details</h3>
+        <div class="attribute-item">
+          <span class="attribute-key">Authentication Type</span>
+          <span class="attribute-value">Form Login</span>
+        </div>
+        <div class="attribute-item">
+          <span class="attribute-key">Username</span>
+          <span
+            class="attribute-value"
+            th:text="${login ?: name ?: 'Unknown'}"
+          ></span>
+        </div>
+        <div class="attribute-item">
+          <span class="attribute-key">Authorities</span>
+          <span
+            class="attribute-value"
+            th:text="${principal?.authorities ?: 'USER'}"
+          ></span>
+        </div>
+      </div>
+
+      <div style="text-align: center; margin-top: 2rem">
+        <form th:action="@{/perform_logout}" method="post">
+          <input
+            type="hidden"
+            th:name="${_csrf.parameterName}"
+            th:value="${_csrf.token}"
+          />
+          <button
+            type="submit"
+            class="logout-btn"
+            style="
+              display: inline-block;
+              padding: 12px 24px;
+              background: #e74c3c;
+              color: white;
+              text-decoration: none;
+              border-radius: 5px;
+              font-weight: bold;
+              transition: background 0.3s ease;
+              border: none;
+              cursor: pointer;
+            "
+          >
+            Logout
+          </button>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>

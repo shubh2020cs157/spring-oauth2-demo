@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Multi-Provider Authentication</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+      }
+      .login-container {
+        background: white;
+        padding: 2.5rem;
+        border-radius: 15px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        max-width: 450px;
+        width: 100%;
+      }
+      h1 {
+        color: #333;
+        margin-bottom: 2rem;
+        font-weight: 600;
+      }
+
+      /* Form Login Styles */
+      .form-login {
+        margin-bottom: 2rem;
+      }
+      .form-group {
+        margin-bottom: 1.5rem;
+        text-align: left;
+      }
+      .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #555;
+        font-weight: 500;
+      }
+      .form-group input {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid #e1e5e9;
+        border-radius: 8px;
+        font-size: 16px;
+        transition: border-color 0.3s ease;
+        box-sizing: border-box;
+      }
+      .form-group input:focus {
+        outline: none;
+        border-color: #667eea;
+      }
+      .login-btn {
+        width: 100%;
+        padding: 12px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+      }
+      .login-btn:hover {
+        transform: translateY(-2px);
+      }
+
+      /* Divider */
+      .divider {
+        margin: 2rem 0;
+        position: relative;
+        text-align: center;
+      }
+      .divider::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: #e1e5e9;
+      }
+      .divider span {
+        background: white;
+        padding: 0 1rem;
+        color: #666;
+        font-size: 14px;
+      }
+
+      /* OAuth2 Buttons */
+      .oauth-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+      }
+      .oauth-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 12px 20px;
+        border: 2px solid #e1e5e9;
+        border-radius: 8px;
+        text-decoration: none;
+        font-size: 16px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        background: white;
+        color: #333;
+      }
+      .oauth-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      }
+      .oauth-icon {
+        margin-right: 10px;
+        font-size: 18px;
+      }
+      .google-btn:hover {
+        border-color: #db4437;
+        background: #db4437;
+        color: white;
+      }
+      .github-btn:hover {
+        border-color: #24292e;
+        background: #24292e;
+        color: white;
+      }
+      .linkedin-btn:hover {
+        border-color: #0077b5;
+        background: #0077b5;
+        color: white;
+      }
+      .microsoft-btn:hover {
+        border-color: #00bcf2;
+        background: #00bcf2;
+        color: white;
+      }
+
+      /* Messages */
+      .error {
+        color: #d32f2f;
+        margin-bottom: 1rem;
+        font-weight: 500;
+        padding: 10px;
+        background: #ffebee;
+        border-radius: 5px;
+        border-left: 4px solid #d32f2f;
+      }
+      .logout {
+        color: #2e7d32;
+        margin-bottom: 1rem;
+        font-weight: 500;
+        padding: 10px;
+        background: #e8f5e8;
+        border-radius: 5px;
+        border-left: 4px solid #2e7d32;
+      }
+      .note {
+        margin-top: 1.5rem;
+        font-size: 13px;
+        color: #666;
+        line-height: 1.4;
+      }
+
+      /* Demo Credentials */
+      .demo-credentials {
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-top: 1.5rem;
+        border: 1px solid #e1e5e9;
+      }
+      .demo-credentials h4 {
+        margin: 0 0 0.5rem 0;
+        color: #495057;
+        font-size: 14px;
+      }
+      .demo-credentials p {
+        margin: 0;
+        font-size: 13px;
+        color: #6c757d;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="login-container">
+      <h1>Welcome to Multi-Provider Auth</h1>
+
+      <div th:if="${param.error}" class="error">
+        Login failed. Please check your credentials and try again.
+      </div>
+
+      <div th:if="${param.logout}" class="logout">
+        You have been logged out successfully.
+      </div>
+
+      <!-- Form Login -->
+      <div class="form-login">
+        <form th:action="@{/perform_login}" method="post">
+          <input
+            type="hidden"
+            th:name="${_csrf.parameterName}"
+            th:value="${_csrf.token}"
+          />
+          <div class="form-group">
+            <label for="username">Username</label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              required
+              placeholder="Enter username"
+            />
+          </div>
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              required
+              placeholder="Enter password"
+            />
+          </div>
+          <button type="submit" class="login-btn">Sign In</button>
+        </form>
+      </div>
+
+      <!-- Divider -->
+      <div class="divider">
+        <span>or continue with</span>
+      </div>
+
+      <!-- OAuth2 Login -->
+      <div class="oauth-buttons">
+        <a href="/oauth2/authorization/google" class="oauth-button google-btn">
+          <i class="fab fa-google oauth-icon"></i>
+          Continue with Google
+        </a>
+
+        <a href="/oauth2/authorization/github" class="oauth-button github-btn">
+          <i class="fab fa-github oauth-icon"></i>
+          Continue with GitHub
+        </a>
+
+        <a
+          href="/oauth2/authorization/linkedin"
+          class="oauth-button linkedin-btn"
+        >
+          <i class="fab fa-linkedin oauth-icon"></i>
+          Continue with LinkedIn
+        </a>
+
+        <a
+          href="/oauth2/authorization/microsoft"
+          class="oauth-button microsoft-btn"
+        >
+          <i class="fab fa-microsoft oauth-icon"></i>
+          Continue with Microsoft
+        </a>
+      </div>
+
+      <!-- Demo Credentials -->
+      <div class="demo-credentials">
+        <h4>Demo Credentials</h4>
+        <p>
+          <strong>Username:</strong> user<br /><strong>Password:</strong>
+          password
+        </p>
+      </div>
+
+      <div class="note">
+        <strong>Note:</strong> OAuth2 providers require proper client
+        configuration. Form login works with the demo credentials above.
+      </div>
+    </div>
+  </body>
+</html>
