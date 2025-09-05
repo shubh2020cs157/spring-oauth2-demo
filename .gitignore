@@ -56,3 +56,18 @@ dependency-reduced-pom.xml
 buildNumber.properties
 .mvn/timing.properties
 .mvn/wrapper/maven-wrapper.jar
+
+# Temporary files
+cookies.txt
+*.tmp
+*.temp
+
+# IDE specific
+.idea/
+.vscode/
+*.iml
+*.iws
+
+# OS specific
+.DS_Store
+Thumbs.db
